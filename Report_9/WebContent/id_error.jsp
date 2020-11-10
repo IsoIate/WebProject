@@ -7,7 +7,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<p>회원이 아닙니다.</p><br/><br/>
-	<a href="./index.jsp">로그인</a>
+	회원이 아닙니다.</br>
+	<a href = "index.jsp">로그인</a>
 </body>	
 </html>

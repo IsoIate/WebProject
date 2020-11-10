@@ -7,7 +7,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<p>비밀번호가 일치하지 않습니다.</p><br/><br/>
-	<a href="./index.jsp">로그인</a>
+	비밀번호가 일치하지 않습니다.</br>
+	<a href = "index.jsp">로그인</a>
 </body>
 </html>

@@ -9,62 +9,44 @@
 </head>
 <body>
 <%
-	request.setCharacterEncoding("UTF-8");
-	String id = (String)request.getParameter("id");
-	String pw = (String)request.getParameter("password");
-	String sql = "SELECT * FROM user WHERE id=? and password=?";
-	String[] error = {"회원이 아닙니다", "비밀번호가 일치하지 않습니다", " 님 환영합니다."}; 	
- 	String[] jsp = {"./index.jsp", "./id_error.jsp", "./pass_error.jsp"};
- 	String resultMsg = "";
- 	String resultUrl = "";
-	
-	Connection conn = null;
-	try{
-		String url = "jdbc:mysql://localhost:3306/jspbookdb?characterEncoding=UTF-8&serverTimezone=UTC";
+		Connection conn = null;
+		String url="jdbc:mysql://localhost:3306/jspbookdb?characterEncoding=UTF-8&serverTimezone=UTC";
 		String user = "root";
-		String password = "root";
+		String pass = "root";
+		String nextPage = null;
 		
-		Class.forName("com.mysql.cj.jdbc.Driver");	
-		conn = DriverManager.getConnection(url, user, password);
-		System.out.println("데이터베이스 연결 성공");
-	}catch(SQLException ex) {		
-		System.out.println("데이터베이스 연결 실패");
-	}
-	
-	try{
-		PreparedStatement pstat = null;
-		pstat = conn.prepareStatement(sql);
-		pstat.setString(1,id);
-		pstat.setString(2,pw);
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			conn = DriverManager.getConnection(url, user, pass);
+		} catch(SQLException e) {
+			out.println("데이터베이스 연결 실패");
+		}
+	%>
+	<%
+		String sql = "SELECT * FROM user WHERE id=?";
+		PreparedStatement pstat = conn.prepareStatement(sql);
+		
+		pstat.setString(1, request.getParameter("id"));
 		ResultSet rs = pstat.executeQuery();
-	 	if(rs.next()){
-	 		String name = rs.getString("name");
-	 		resultUrl = jsp[0];
-	 		resultMsg = name + error[2];
-	 		System.out.println("데이터 조회 성공\n" + resultMsg);
-	 	}else{
-	 		sql = "SELECT COUNT(*) count FROM user WHERE id=?";
-	 		pstat = conn.prepareStatement(sql);
-	 		pstat.setString(1, id);
-		 	rs = pstat.executeQuery();
-		 	System.out.println("데이터 조회중" + resultMsg);
-		 	if(rs.next()){
-		 		int count = rs.getInt("count");
-		 		if(count > 0){
-		 			resultUrl = jsp[2];
-		 			resultMsg = error[1];
-		 		}else{
-		 			resultUrl = jsp[1];
-		 			resultMsg = error[0];
-		 		}
-		 	}
-	 	}
-	}catch(SQLException ex) {
-		System.out.println("데이터 조회 실패");
-	}
-%>
-<jsp:forward page="<%= resultUrl %>">
-	<jsp:param value="<%= resultMsg %>" name="message"/>
-</jsp:forward>
+		if(rs.next() != false) { // boolean값, id가 일치
+			if(rs.getString(2).equals(request.getParameter("passwd"))){	// pw 비교
+				request.setAttribute("name", rs.getString(3));
+				nextPage = "index.jsp";
+			}
+			else {
+				nextPage = "pass_error.jsp";
+			}
+			/* 
+			out.println(rs.getString(1));	// id
+			out.println(rs.getString(2));	// pw
+			out.println(rs.getString(3));	// name 
+			*/
+		}
+		else {	// id가 불일치
+			nextPage = "id_error.jsp";
+		}
+	%>
+	<!-- 페이지 이동처리 -->
+	<jsp:forward page="<%= nextPage %>"></jsp:forward>	
 </body>
 </html>
